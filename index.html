@@ -27,9 +27,9 @@
       display: flex;
       flex-direction: column;
       user-select: none;
+      -webkit-user-select: none;
     }
 
-    /* ========== KEY GATE ========== */
     #keyGate {
       position: fixed;
       inset: 0;
@@ -40,7 +40,6 @@
       z-index: 9999;
       padding: 20px;
     }
-    #keyGate.hidden { display: none; }
 
     .gate-card {
       background: var(--panel);
@@ -51,10 +50,7 @@
       width: 100%;
       text-align: center;
     }
-    .gate-card h1 {
-      font-size: 1.35rem;
-      margin-bottom: 6px;
-    }
+    .gate-card h1 { font-size: 1.35rem; margin-bottom: 6px; }
     .gate-card .sub {
       font-size: 0.85rem;
       color: var(--muted);
@@ -89,10 +85,7 @@
       transition: background 0.15s;
     }
     .gate-card .btn:hover { background: var(--accent-hover); }
-    .gate-card .btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
+    .gate-card .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .gate-status {
       margin-top: 12px;
@@ -109,15 +102,8 @@
       color: var(--muted);
       line-height: 1.5;
     }
-    .gate-help a {
-      color: #7af;
-      text-decoration: none;
-    }
 
-    /* ========== APP (same as before) ========== */
-    #app { display: none; flex-direction: column; min-height: 100vh; }
-    #app.unlocked { display: flex; }
-
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
     header {
       padding: 12px 18px;
       border-bottom: 1px solid var(--border);
@@ -378,9 +364,9 @@
     }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-  <!-- ========== KEY GATE ========== -->
+  <!-- KEY GATE (Satu-satunya elemen yang ada di HTML sebelum diverifikasi) -->
   <div id="keyGate">
     <div class="gate-card">
       <h1>🔑 Key Required</h1>
@@ -397,499 +383,480 @@
     </div>
   </div>
 
-  <!-- ========== APP ========== -->
-  <div id="app">
-    <header>
-      <h1>Laser Cut Calculator</h1>
-      <span class="badge">mm · Cut-Ready SVG</span>
-    </header>
-
-    <div class="main">
-      <aside class="panel">
-        <div>
-          <div class="section-title">Ukuran Bahan</div>
-          <div class="row-2">
-            <div class="field">
-              <label>Panjang <span class="unit">mm</span></label>
-              <input type="number" id="width" value="60" min="5" max="500" step="0.1" />
-            </div>
-            <div class="field">
-              <label>Lebar <span class="unit">mm</span></label>
-              <input type="number" id="height" value="40" min="5" max="500" step="0.1" />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-title">Sudut</div>
-          <div class="field">
-            <label>Radius <span class="unit">mm</span></label>
-            <input type="number" id="radius" value="5" min="0" max="50" step="0.1" />
-          </div>
-          <p class="hint">0 = tajam. Otomatis dibatasi agar tidak melebihi ukuran.</p>
-        </div>
-
-        <div>
-          <div class="section-title">Lubang Gantungan</div>
-          <div class="field">
-            <label>Diameter <span class="unit">mm</span></label>
-            <input type="number" id="holeDia" value="4" min="0" max="30" step="0.1" />
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="section-title" style="margin-bottom:6px">Posisi</div>
-            <div class="pos-grid">
-              <button type="button" class="pos-btn active" data-pos="top-center">Tengah Atas</button>
-              <button type="button" class="pos-btn" data-pos="top-left">Kiri Atas</button>
-              <button type="button" class="pos-btn" data-pos="top-right">Kanan Atas</button>
-              <button type="button" class="pos-btn" data-pos="left">Kiri</button>
-              <button type="button" class="pos-btn" data-pos="right">Kanan</button>
-              <button type="button" class="pos-btn" data-pos="none">Tanpa Lubang</button>
-              <button type="button" class="pos-btn free" data-pos="free">✦ Bebas / Drag</button>
-            </div>
-          </div>
-
-          <div class="coord-row" id="coordRow">
-            <div class="field">
-              <label>X pusat <span class="unit">mm</span></label>
-              <input type="number" id="holeX" value="30" min="0" step="0.1" />
-            </div>
-            <div class="field">
-              <label>Y pusat <span class="unit">mm</span></label>
-              <input type="number" id="holeY" value="5" min="0" step="0.1" />
-            </div>
-          </div>
-
-          <div class="field" id="offsetField" style="margin-top:10px">
-            <label>Jarak dari tepi <span class="unit">mm</span></label>
-            <input type="number" id="holeOffset" value="3" min="0.5" max="40" step="0.1" />
-          </div>
-          <p class="hint" id="posHint">Pilih posisi, atau aktifkan <strong>Bebas / Drag</strong> lalu geser lubang di preview.</p>
-        </div>
-
-        <div>
-          <div class="section-title">Export</div>
-          <p class="hint" style="margin:0">
-            Stroke <strong style="color:#ff3b3b">#FF0000</strong> hairline · Unit mm<br>
-            Langsung dipakai di LightBurn / RDWorks.
-          </p>
-        </div>
-      </aside>
-
-      <section class="preview-wrap">
-        <div class="preview-toolbar">
-          <span>Preview</span>
-          <span class="dim" id="dimLabel">60 × 40 mm</span>
-          <span class="drag-hint" id="dragHint">← geser lubang untuk pindah posisi</span>
-        </div>
-        <div class="canvas-area" id="canvasArea">
-          <div class="grid-overlay"></div>
-          <svg id="previewSvg" xmlns="http://www.w3.org/2000/svg"></svg>
-        </div>
-      </section>
-    </div>
-
-    <footer>
-      <div class="footer-info">
-        Akurat 100% · koordinat mm · siap mesin laser
-      </div>
-      <button class="btn-export" id="btnExport">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Export Cut-Ready SVG
-      </button>
-    </footer>
-  </div>
-
+  <div id="appContainer"></div>
   <div class="toast" id="toast">SVG berhasil diunduh</div>
 
   <script>
-    // ===================== HELPERS =====================
-    const $ = id => document.getElementById(id);
-
-    // ===================== KEY SYSTEM (Work.ink) =====================
-    // === TEST MODE ===
-    // true  = langsung buka + terima key palsu (buat testing)
-    // false = wajib key Work.ink asli (production)
-    const TEST_MODE = false;
-    const TEST_KEYS = ["test", "demo", "1234", "laser"];
-
-    const KEY_STORAGE = "lcc_workink_key";
-
-    function getKeyFromURL() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        return (
-          params.get("key") ||
-          params.get("token") ||
-          params.get("TOKEN") ||
-          params.get("k") ||
-          ""
-        ).trim();
-      } catch (_) {
-        return "";
+    (function () {
+      // 1. KUNCI DOMAIN (Ganti atau tambahkan domain GitHub Pages kamu di sini)
+      const ALLOWED_HOSTS = [
+        "localhost",
+        "127.0.0.1",
+        window.location.hostname // Hapus baris ini dan ganti dengan misal: "username.github.io"
+      ];
+      if (!ALLOWED_HOSTS.includes(window.location.hostname)) {
+        document.body.innerHTML = "<h2 style='color:#fff;text-align:center;margin-top:20%'>Akses Domain Tidak Sah</h2>";
+        throw new Error("Domain lock triggered.");
       }
-    }
 
-    async function validateWorkInkKey(token) {
-      if (TEST_MODE && TEST_KEYS.includes(token.trim().toLowerCase())) {
-        return { valid: true, deleted: false, info: { token, test: true } };
-      }
-      const url = `https://work.ink/_api/v2/token/isValid/${encodeURIComponent(token.trim())}`;
-      const res = await fetch(url, { method: "GET", cache: "no-store" });
-      if (!res.ok) throw new Error("Network / API error");
-      return await res.json();
-    }
-
-    function unlockApp() {
-      const gate = document.getElementById("keyGate");
-      const app = document.getElementById("app");
-      if (gate) gate.classList.add("hidden");
-      if (app) app.classList.add("unlocked");
-      try {
-        if (window.history && window.history.replaceState) {
-          const clean = window.location.pathname + window.location.hash;
-          window.history.replaceState({}, document.title, clean);
+      // 2. BLOCK DEVTOOLS SHORTCUTS
+      window.addEventListener("keydown", function (e) {
+        if (
+          e.key === "F12" ||
+          (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+          (e.ctrlKey && (e.key === "U" || e.key === "s"))
+        ) {
+          e.preventDefault();
+          return false;
         }
-      } catch (_) {}
-      if (typeof setPosition === "function") setPosition("top-center");
-    }
+      });
 
-    async function tryUnlock(token, fromStorage = false) {
-      const status = document.getElementById("gateStatus");
-      const btn = document.getElementById("btnUnlock");
-      const input = document.getElementById("keyInput");
-
-      if (!token || token.length < 3) {
-        if (status) {
-          status.className = "gate-status error";
-          status.textContent = "Key terlalu pendek.";
+      // 3. TAMPER PROTECTION
+      let isUnlocked = false;
+      const gateObserver = new MutationObserver(function () {
+        const gate = document.getElementById("keyGate");
+        if (!isUnlocked && (!gate || gate.style.display === "none")) {
+          document.body.innerHTML = "<h2 style='color:#ff5555;text-align:center;margin-top:20%'>Manipulasi Dideteksi</h2>";
+          window.location.reload();
         }
-        return;
+      });
+      gateObserver.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+      const KEY_STORAGE = "lcc_workink_key";
+
+      function getKeyFromURL() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          return (params.get("key") || params.get("token") || params.get("k") || "").trim();
+        } catch (_) {
+          return "";
+        }
       }
 
-      if (input) input.value = token.trim();
-      if (btn) btn.disabled = true;
-      if (status) {
-        status.className = "gate-status loading";
-        status.textContent = "Memvalidasi key...";
+      async function validateWorkInkKey(token) {
+        const url = `https://work.ink/_api/v2/token/isValid/${encodeURIComponent(token.trim())}`;
+        const res = await fetch(url, { method: "GET", cache: "no-store" });
+        if (!res.ok) throw new Error("Network / API error");
+        return await res.json();
       }
 
-      try {
-        const data = await validateWorkInkKey(token);
+      function injectApplication() {
+        isUnlocked = true;
+        gateObserver.disconnect();
+        const gate = document.getElementById("keyGate");
+        if (gate) gate.remove();
 
-        if (data && data.valid === true) {
-          try { localStorage.setItem(KEY_STORAGE, token.trim()); } catch (_) {}
-          if (status) {
-            status.className = "gate-status ok";
-            status.textContent = "Key valid ✓ Membuka aplikasi...";
+        const container = document.getElementById("appContainer");
+        container.innerHTML = `
+          <div id="app">
+            <header>
+              <h1>Laser Cut Calculator</h1>
+              <span class="badge">mm · Cut-Ready SVG</span>
+            </header>
+            <div class="main">
+              <aside class="panel">
+                <div>
+                  <div class="section-title">Ukuran Bahan</div>
+                  <div class="row-2">
+                    <div class="field">
+                      <label>Panjang <span class="unit">mm</span></label>
+                      <input type="number" id="width" value="60" min="5" max="500" step="0.1" />
+                    </div>
+                    <div class="field">
+                      <label>Lebar <span class="unit">mm</span></label>
+                      <input type="number" id="height" value="40" min="5" max="500" step="0.1" />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="section-title">Sudut</div>
+                  <div class="field">
+                    <label>Radius <span class="unit">mm</span></label>
+                    <input type="number" id="radius" value="5" min="0" max="50" step="0.1" />
+                  </div>
+                  <p class="hint">0 = tajam. Otomatis dibatasi agar tidak melebihi ukuran.</p>
+                </div>
+                <div>
+                  <div class="section-title">Lubang Gantungan</div>
+                  <div class="field">
+                    <label>Diameter <span class="unit">mm</span></label>
+                    <input type="number" id="holeDia" value="4" min="0" max="30" step="0.1" />
+                  </div>
+                  <div style="margin-top:10px">
+                    <div class="section-title" style="margin-bottom:6px">Posisi</div>
+                    <div class="pos-grid">
+                      <button type="button" class="pos-btn active" data-pos="top-center">Tengah Atas</button>
+                      <button type="button" class="pos-btn" data-pos="top-left">Kiri Atas</button>
+                      <button type="button" class="pos-btn" data-pos="top-right">Kanan Atas</button>
+                      <button type="button" class="pos-btn" data-pos="left">Kiri</button>
+                      <button type="button" class="pos-btn" data-pos="right">Kanan</button>
+                      <button type="button" class="pos-btn" data-pos="none">Tanpa Lubang</button>
+                      <button type="button" class="pos-btn free" data-pos="free">✦ Bebas / Drag</button>
+                    </div>
+                  </div>
+                  <div class="coord-row" id="coordRow">
+                    <div class="field">
+                      <label>X pusat <span class="unit">mm</span></label>
+                      <input type="number" id="holeX" value="30" min="0" step="0.1" />
+                    </div>
+                    <div class="field">
+                      <label>Y pusat <span class="unit">mm</span></label>
+                      <input type="number" id="holeY" value="5" min="0" step="0.1" />
+                    </div>
+                  </div>
+                  <div class="field" id="offsetField" style="margin-top:10px">
+                    <label>Jarak dari tepi <span class="unit">mm</span></label>
+                    <input type="number" id="holeOffset" value="3" min="0.5" max="40" step="0.1" />
+                  </div>
+                  <p class="hint" id="posHint">Pilih posisi, atau aktifkan <strong>Bebas / Drag</strong> lalu geser lubang di preview.</p>
+                </div>
+                <div>
+                  <div class="section-title">Export</div>
+                  <p class="hint" style="margin:0">
+                    Stroke <strong style="color:#ff3b3b">#FF0000</strong> hairline · Unit mm<br>
+                    Langsung dipakai di LightBurn / RDWorks.
+                  </p>
+                </div>
+              </aside>
+              <section class="preview-wrap">
+                <div class="preview-toolbar">
+                  <span>Preview</span>
+                  <span class="dim" id="dimLabel">60 × 40 mm</span>
+                  <span class="drag-hint" id="dragHint">← geser lubang untuk pindah posisi</span>
+                </div>
+                <div class="canvas-area" id="canvasArea">
+                  <div class="grid-overlay"></div>
+                  <svg id="previewSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+              </section>
+            </div>
+            <footer>
+              <div class="footer-info">Akurat 100% · koordinat mm · siap mesin laser</div>
+              <button class="btn-export" id="btnExport">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export Cut-Ready SVG
+              </button>
+            </footer>
+          </div>
+        `;
+
+        try {
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
           }
-          setTimeout(unlockApp, 400);
-        } else {
+        } catch (_) {}
+
+        startCalculatorEngine();
+      }
+
+      function startCalculatorEngine() {
+        const $ = id => document.getElementById(id);
+        const state = { pos: "top-center", holeX: 30, holeY: 5, dragging: false };
+
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        function getValues() {
+          const W = Math.max(1, parseFloat($("width").value) || 60);
+          const H = Math.max(1, parseFloat($("height").value) || 40);
+          let R = Math.max(0, parseFloat($("radius").value) || 0);
+          R = Math.min(R, Math.min(W, H) / 2 - 0.001);
+          const holeDia = Math.max(0, parseFloat($("holeDia").value) || 0);
+          const holeOffset = Math.max(0, parseFloat($("holeOffset").value) || 3);
+          return { W, H, R, holeDia, holeOffset };
+        }
+
+        function roundedRectPath(W, H, R) {
+          if (R < 0.001) return `M0 0H${W}V${H}H0Z`;
+          return [
+            `M${R} 0`, `H${W - R}`,
+            `A${R} ${R} 0 0 1 ${W} ${R}`,
+            `V${H - R}`,
+            `A${R} ${R} 0 0 1 ${W - R} ${H}`,
+            `H${R}`,
+            `A${R} ${R} 0 0 1 0 ${H - R}`,
+            `V${R}`,
+            `A${R} ${R} 0 0 1 ${R} 0`,
+            `Z`
+          ].join("");
+        }
+
+        function getHoleCenter(vals) {
+          const { W, H, holeDia, holeOffset } = vals;
+          if (state.pos === "none" || holeDia <= 0) return null;
+          const r = holeDia / 2;
+          if (state.pos === "free") {
+            return {
+              cx: clamp(state.holeX, r, W - r),
+              cy: clamp(state.holeY, r, H - r),
+              r
+            };
+          }
+          const margin = holeOffset + r;
+          let cx, cy;
+          switch (state.pos) {
+            case "top-center": cx = W / 2; cy = margin; break;
+            case "top-left": cx = margin; cy = margin; break;
+            case "top-right": cx = W - margin; cy = margin; break;
+            case "left": cx = margin; cy = H / 2; break;
+            case "right": cx = W - margin; cy = H / 2; break;
+            default: cx = W / 2; cy = margin;
+          }
+          return { cx, cy, r };
+        }
+
+        function syncCoordInputs(cx, cy) {
+          $("holeX").value = +cx.toFixed(2);
+          $("holeY").value = +cy.toFixed(2);
+          state.holeX = cx;
+          state.holeY = cy;
+        }
+
+        function svgPoint(e) {
+          const svg = $("previewSvg");
+          const pt = svg.createSVGPoint();
+          pt.x = e.clientX;
+          pt.y = e.clientY;
+          return pt.matrixTransform(svg.getScreenCTM().inverse());
+        }
+
+        function onDown(e) {
+          if (state.pos !== "free") return;
+          e.preventDefault();
+          state.dragging = true;
+          $("canvasArea").classList.add("dragging");
+          e.target.setPointerCapture?.(e.pointerId);
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onUp);
+          window.addEventListener("pointercancel", onUp);
+        }
+
+        function onMove(e) {
+          if (!state.dragging) return;
+          const vals = getValues();
+          const r = vals.holeDia / 2;
+          const pt = svgPoint(e);
+          const cx = clamp(pt.x, r, vals.W - r);
+          const cy = clamp(pt.y, r, vals.H - r);
+          state.holeX = cx;
+          state.holeY = cy;
+          syncCoordInputs(cx, cy);
+          const circle = $("holeCircle");
+          if (circle) { circle.setAttribute("cx", cx); circle.setAttribute("cy", cy); }
+          const txt = $("coordText");
+          if (txt) {
+            txt.setAttribute("x", cx);
+            txt.setAttribute("y", cy + r + 4);
+            txt.textContent = `${cx.toFixed(1)}, ${cy.toFixed(1)}`;
+          }
+        }
+
+        function onUp() {
+          state.dragging = false;
+          $("canvasArea").classList.remove("dragging");
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+          window.removeEventListener("pointercancel", onUp);
+          updatePreview();
+        }
+
+        function attachDrag() {
+          const circle = $("holeCircle");
+          if (!circle || state.pos !== "free") return;
+          circle.addEventListener("pointerdown", onDown);
+        }
+
+        function updatePreview() {
+          const vals = getValues();
+          const { W, H, R } = vals;
+          const hole = getHoleCenter(vals);
+
+          $("dimLabel").textContent = `${W.toFixed(1)} × ${H.toFixed(1)} mm`;
+
+          const pad = Math.max(3, Math.min(W, H) * 0.1);
+          const svg = $("previewSvg");
+          svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + pad * 2} ${H + pad * 2}`);
+          svg.style.width = "min(92vw, 540px)";
+          svg.style.height = "min(68vh, 460px)";
+
+          let html = `<path d="${roundedRectPath(W, H, R)}" fill="none" stroke="#FF0000" stroke-width="0.4" vector-effect="non-scaling-stroke"/>`;
+
+          if (hole) {
+            const cls = state.pos === "free" ? "hole draggable" : "hole";
+            html += `<circle class="${cls}" id="holeCircle" cx="${hole.cx}" cy="${hole.cy}" r="${hole.r}"/>`;
+            if (state.pos === "free") {
+              const fs = Math.max(2.2, Math.min(W, H) * 0.05);
+              html += `<text id="coordText" x="${hole.cx}" y="${hole.cy + hole.r + fs * 1.5}" text-anchor="middle" fill="#6a9" font-size="${fs}" font-family="system-ui">${hole.cx.toFixed(1)}, ${hole.cy.toFixed(1)}</text>`;
+            }
+          }
+
+          const fs = Math.max(2.4, Math.min(W, H) * 0.055);
+          html += `<text x="${W / 2}" y="${-pad * 0.4}" text-anchor="middle" fill="#555" font-size="${fs}" font-family="system-ui">${W} mm</text>`;
+          html += `<text x="${-pad * 0.42}" y="${H / 2}" text-anchor="middle" fill="#555" font-size="${fs}" font-family="system-ui" transform="rotate(-90 ${-pad * 0.42} ${H / 2})">${H} mm</text>`;
+
+          svg.innerHTML = html;
+          attachDrag();
+        }
+
+        function setPosition(pos) {
+          state.pos = pos;
+          document.querySelectorAll(".pos-btn").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.pos === pos);
+          });
+          const isFree = pos === "free";
+          const isNone = pos === "none";
+          $("coordRow").classList.toggle("show", isFree);
+          $("offsetField").style.display = (isFree || isNone) ? "none" : "block";
+          $("dragHint").classList.toggle("show", isFree);
+          $("posHint").innerHTML = isFree
+            ? "Geser lubang di preview, atau ketik koordinat X/Y. Lubang selalu tetap di dalam bahan."
+            : isNone
+              ? "Tidak ada lubang gantungan."
+              : "Pilih posisi, atau aktifkan <strong>Bebas / Drag</strong> lalu geser lubang di preview.";
+
+          if (isFree) {
+            const vals = getValues();
+            const r = vals.holeDia / 2;
+            state.holeX = clamp(state.holeX ?? vals.W / 2, r, vals.W - r);
+            state.holeY = clamp(state.holeY ?? (vals.holeOffset + r), r, vals.H - r);
+            syncCoordInputs(state.holeX, state.holeY);
+          }
+          updatePreview();
+        }
+
+        function generateSVG() {
+          const vals = getValues();
+          const { W, H, R } = vals;
+          const hole = getHoleCenter(vals);
+          const pathD = roundedRectPath(W, H, R);
+
+          let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}" version="1.1">
+  <g id="Cut" stroke="#FF0000" fill="none" stroke-width="0.01" stroke-linecap="round" stroke-linejoin="round">
+    <path d="${pathD}"/>`;
+          if (hole) {
+            svg += `\n    <circle cx="${+hole.cx.toFixed(4)}" cy="${+hole.cy.toFixed(4)}" r="${+hole.r.toFixed(4)}"/>`;
+          }
+          svg += `\n  </g>\n</svg>`;
+          return svg;
+        }
+
+        function download() {
+          const content = generateSVG();
+          const { W, H } = getValues();
+          const blob = new Blob([content], { type: "image/svg+xml;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `keychain_${W}x${H}mm_cut.svg`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          const toast = $("toast");
+          toast.textContent = `SVG ${W}×${H} mm diunduh — siap laser`;
+          toast.classList.add("show");
+          setTimeout(() => toast.classList.remove("show"), 2000);
+        }
+
+        ["width", "height", "radius", "holeDia", "holeOffset"].forEach(id => {
+          $(id).addEventListener("input", () => {
+            if (state.pos === "free") {
+              const vals = getValues();
+              const r = vals.holeDia / 2;
+              state.holeX = clamp(state.holeX, r, vals.W - r);
+              state.holeY = clamp(state.holeY, r, vals.H - r);
+              syncCoordInputs(state.holeX, state.holeY);
+            }
+            updatePreview();
+          });
+        });
+        $("holeX").addEventListener("input", () => {
+          state.holeX = parseFloat($("holeX").value) || 0;
+          updatePreview();
+        });
+        $("holeY").addEventListener("input", () => {
+          state.holeY = parseFloat($("holeY").value) || 0;
+          updatePreview();
+        });
+        document.querySelectorAll(".pos-btn").forEach(btn => {
+          btn.addEventListener("click", () => setPosition(btn.dataset.pos));
+        });
+        $("btnExport").addEventListener("click", download);
+
+        setPosition("top-center");
+      }
+
+      async function tryUnlock(token, fromStorage = false) {
+        const status = document.getElementById("gateStatus");
+        const btn = document.getElementById("btnUnlock");
+        const input = document.getElementById("keyInput");
+
+        if (!token || token.length < 3) {
           if (status) {
             status.className = "gate-status error";
-            status.textContent = "Key tidak valid atau sudah kadaluarsa.";
+            status.textContent = "Key terlalu pendek.";
           }
-          if (fromStorage) {
-            try { localStorage.removeItem(KEY_STORAGE); } catch (_) {}
-          }
+          return;
         }
-      } catch (err) {
-        if (status) {
-          status.className = "gate-status error";
-          status.textContent = "Gagal menghubungi Work.ink (CORS / jaringan).";
-        }
-        console.warn("Work.ink validate error:", err);
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    }
 
-    // Auto detect + TEST_MODE langsung unlock
-    (function autoDetectKey() {
-      if (TEST_MODE) {
-        // Tunggu DOM siap dulu
-        if (document.readyState === "loading") {
-          document.addEventListener("DOMContentLoaded", unlockApp);
-        } else {
-          unlockApp();
+        if (input) input.value = token.trim();
+        if (btn) btn.disabled = true;
+        if (status) {
+          status.className = "gate-status loading";
+          status.textContent = "Memvalidasi key...";
         }
-        return;
+
+        try {
+          const data = await validateWorkInkKey(token);
+          if (data && data.valid === true) {
+            try { localStorage.setItem(KEY_STORAGE, token.trim()); } catch (_) {}
+            if (status) {
+              status.className = "gate-status ok";
+              status.textContent = "Key valid ✓ Membuka aplikasi...";
+            }
+            setTimeout(injectApplication, 400);
+          } else {
+            if (status) {
+              status.className = "gate-status error";
+              status.textContent = "Key tidak valid atau sudah kadaluarsa.";
+            }
+            if (fromStorage) {
+              try { localStorage.removeItem(KEY_STORAGE); } catch (_) {}
+            }
+          }
+        } catch (err) {
+          if (status) {
+            status.className = "gate-status error";
+            status.textContent = "Gagal menghubungi Work.ink (CORS / jaringan).";
+          }
+        } finally {
+          if (btn) btn.disabled = false;
+        }
       }
 
       const fromURL = getKeyFromURL();
       if (fromURL) {
         tryUnlock(fromURL, false);
-        return;
+      } else {
+        try {
+          const saved = localStorage.getItem(KEY_STORAGE);
+          if (saved) tryUnlock(saved, true);
+        } catch (_) {}
       }
-      try {
-        const saved = localStorage.getItem(KEY_STORAGE);
-        if (saved) tryUnlock(saved, true);
-      } catch (_) {}
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById("btnUnlock");
+        const input = document.getElementById("keyInput");
+        if (btn) btn.addEventListener("click", () => tryUnlock(input ? input.value : ""));
+        if (input) input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") tryUnlock(input.value);
+        });
+      });
     })();
-
-    // Event tombol (setelah DOM siap)
-    document.addEventListener("DOMContentLoaded", () => {
-      const btn = document.getElementById("btnUnlock");
-      const input = document.getElementById("keyInput");
-      if (btn) btn.addEventListener("click", () => tryUnlock(input ? input.value : ""));
-      if (input) input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") tryUnlock(input.value);
-      });
-    });
-
-    // ===================== CALCULATOR LOGIC =====================
-    const state = {
-      pos: "top-center",
-      holeX: 30,
-      holeY: 5,
-      dragging: false
-    };
-
-    function clamp(v, min, max) {
-      return Math.max(min, Math.min(max, v));
-    }
-
-    function getValues() {
-      const W = Math.max(1, parseFloat($("width").value) || 60);
-      const H = Math.max(1, parseFloat($("height").value) || 40);
-      let R = Math.max(0, parseFloat($("radius").value) || 0);
-      R = Math.min(R, Math.min(W, H) / 2 - 0.001);
-      const holeDia = Math.max(0, parseFloat($("holeDia").value) || 0);
-      const holeOffset = Math.max(0, parseFloat($("holeOffset").value) || 3);
-      return { W, H, R, holeDia, holeOffset };
-    }
-
-    function roundedRectPath(W, H, R) {
-      if (R < 0.001) return `M0 0H${W}V${H}H0Z`;
-      return [
-        `M${R} 0`, `H${W - R}`,
-        `A${R} ${R} 0 0 1 ${W} ${R}`,
-        `V${H - R}`,
-        `A${R} ${R} 0 0 1 ${W - R} ${H}`,
-        `H${R}`,
-        `A${R} ${R} 0 0 1 0 ${H - R}`,
-        `V${R}`,
-        `A${R} ${R} 0 0 1 ${R} 0`,
-        `Z`
-      ].join("");
-    }
-
-    function getHoleCenter(vals) {
-      const { W, H, holeDia, holeOffset } = vals;
-      if (state.pos === "none" || holeDia <= 0) return null;
-      const r = holeDia / 2;
-
-      if (state.pos === "free") {
-        return {
-          cx: clamp(state.holeX, r, W - r),
-          cy: clamp(state.holeY, r, H - r),
-          r
-        };
-      }
-
-      const margin = holeOffset + r;
-      let cx, cy;
-      switch (state.pos) {
-        case "top-center": cx = W / 2;      cy = margin;  break;
-        case "top-left":   cx = margin;     cy = margin;  break;
-        case "top-right":  cx = W - margin; cy = margin;  break;
-        case "left":       cx = margin;     cy = H / 2;   break;
-        case "right":      cx = W - margin; cy = H / 2;   break;
-        default:           cx = W / 2;      cy = margin;
-      }
-      return { cx, cy, r };
-    }
-
-    function syncCoordInputs(cx, cy) {
-      $("holeX").value = +cx.toFixed(2);
-      $("holeY").value = +cy.toFixed(2);
-      state.holeX = cx;
-      state.holeY = cy;
-    }
-
-    function updatePreview() {
-      const vals = getValues();
-      const { W, H, R } = vals;
-      const hole = getHoleCenter(vals);
-
-      $("dimLabel").textContent = `${W.toFixed(1)} × ${H.toFixed(1)} mm`;
-
-      const pad = Math.max(3, Math.min(W, H) * 0.1);
-      const svg = $("previewSvg");
-      svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + pad * 2} ${H + pad * 2}`);
-      svg.style.width = "min(92vw, 540px)";
-      svg.style.height = "min(68vh, 460px)";
-
-      let html = "";
-      html += `<path d="${roundedRectPath(W, H, R)}" fill="none" stroke="#FF0000" stroke-width="0.4" vector-effect="non-scaling-stroke"/>`;
-
-      if (hole) {
-        const cls = state.pos === "free" ? "hole draggable" : "hole";
-        html += `<circle class="${cls}" id="holeCircle" cx="${hole.cx}" cy="${hole.cy}" r="${hole.r}"/>`;
-        if (state.pos === "free") {
-          const fs = Math.max(2.2, Math.min(W, H) * 0.05);
-          html += `<text id="coordText" x="${hole.cx}" y="${hole.cy + hole.r + fs * 1.5}" text-anchor="middle" fill="#6a9" font-size="${fs}" font-family="system-ui">${hole.cx.toFixed(1)}, ${hole.cy.toFixed(1)}</text>`;
-        }
-      }
-
-      const fs = Math.max(2.4, Math.min(W, H) * 0.055);
-      html += `<text x="${W / 2}" y="${-pad * 0.4}" text-anchor="middle" fill="#555" font-size="${fs}" font-family="system-ui">${W} mm</text>`;
-      html += `<text x="${-pad * 0.42}" y="${H / 2}" text-anchor="middle" fill="#555" font-size="${fs}" font-family="system-ui" transform="rotate(-90 ${-pad * 0.42} ${H / 2})">${H} mm</text>`;
-
-      svg.innerHTML = html;
-      attachDrag();
-    }
-
-    function svgPoint(e) {
-      const svg = $("previewSvg");
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX;
-      pt.y = e.clientY;
-      return pt.matrixTransform(svg.getScreenCTM().inverse());
-    }
-
-    function attachDrag() {
-      const circle = $("holeCircle");
-      if (!circle || state.pos !== "free") return;
-      circle.addEventListener("pointerdown", onDown);
-    }
-
-    function onDown(e) {
-      if (state.pos !== "free") return;
-      e.preventDefault();
-      state.dragging = true;
-      $("canvasArea").classList.add("dragging");
-      e.target.setPointerCapture?.(e.pointerId);
-      window.addEventListener("pointermove", onMove);
-      window.addEventListener("pointerup", onUp);
-      window.addEventListener("pointercancel", onUp);
-    }
-
-    function onMove(e) {
-      if (!state.dragging) return;
-      const vals = getValues();
-      const r = vals.holeDia / 2;
-      const pt = svgPoint(e);
-      const cx = clamp(pt.x, r, vals.W - r);
-      const cy = clamp(pt.y, r, vals.H - r);
-      state.holeX = cx;
-      state.holeY = cy;
-      syncCoordInputs(cx, cy);
-      const circle = $("holeCircle");
-      if (circle) { circle.setAttribute("cx", cx); circle.setAttribute("cy", cy); }
-      const txt = $("coordText");
-      if (txt) {
-        txt.setAttribute("x", cx);
-        txt.setAttribute("y", cy + r + 4);
-        txt.textContent = `${cx.toFixed(1)}, ${cy.toFixed(1)}`;
-      }
-    }
-
-    function onUp() {
-      state.dragging = false;
-      $("canvasArea").classList.remove("dragging");
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
-      updatePreview();
-    }
-
-    function setPosition(pos) {
-      state.pos = pos;
-      document.querySelectorAll(".pos-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.pos === pos);
-      });
-      const isFree = pos === "free";
-      const isNone = pos === "none";
-      $("coordRow").classList.toggle("show", isFree);
-      $("offsetField").style.display = (isFree || isNone) ? "none" : "block";
-      $("dragHint").classList.toggle("show", isFree);
-      $("posHint").innerHTML = isFree
-        ? "Geser lubang di preview, atau ketik koordinat X/Y. Lubang selalu tetap di dalam bahan."
-        : isNone
-          ? "Tidak ada lubang gantungan."
-          : "Pilih posisi, atau aktifkan <strong>Bebas / Drag</strong> lalu geser lubang di preview.";
-
-      if (isFree) {
-        const vals = getValues();
-        const r = vals.holeDia / 2;
-        state.holeX = clamp(state.holeX ?? vals.W / 2, r, vals.W - r);
-        state.holeY = clamp(state.holeY ?? (vals.holeOffset + r), r, vals.H - r);
-        syncCoordInputs(state.holeX, state.holeY);
-      }
-      updatePreview();
-    }
-
-    function generateSVG() {
-      const vals = getValues();
-      const { W, H, R } = vals;
-      const hole = getHoleCenter(vals);
-      const pathD = roundedRectPath(W, H, R);
-
-      let svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg"
-     width="${W}mm" height="${H}mm"
-     viewBox="0 0 ${W} ${H}" version="1.1">
-  <!-- Cut-Ready | mm | #FF0000 = Cut -->
-  <g id="Cut" stroke="#FF0000" fill="none" stroke-width="0.01" stroke-linecap="round" stroke-linejoin="round">
-    <path d="${pathD}"/>`;
-      if (hole) {
-        svg += `
-    <circle cx="${+hole.cx.toFixed(4)}" cy="${+hole.cy.toFixed(4)}" r="${+hole.r.toFixed(4)}"/>`;
-      }
-      svg += `
-  </g>
-</svg>`;
-      return svg;
-    }
-
-    function download() {
-      const content = generateSVG();
-      const { W, H } = getValues();
-      const blob = new Blob([content], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `keychain_${W}x${H}mm_cut.svg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      const toast = $("toast");
-      toast.textContent = `SVG ${W}×${H} mm diunduh — siap laser`;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2000);
-    }
-
-    // Events (hanya aktif setelah unlock, tapi aman di-bind dulu)
-    ["width", "height", "radius", "holeDia", "holeOffset"].forEach(id => {
-      $(id).addEventListener("input", () => {
-        if (state.pos === "free") {
-          const vals = getValues();
-          const r = vals.holeDia / 2;
-          state.holeX = clamp(state.holeX, r, vals.W - r);
-          state.holeY = clamp(state.holeY, r, vals.H - r);
-          syncCoordInputs(state.holeX, state.holeY);
-        }
-        updatePreview();
-      });
-    });
-    $("holeX").addEventListener("input", () => {
-      state.holeX = parseFloat($("holeX").value) || 0;
-      updatePreview();
-    });
-    $("holeY").addEventListener("input", () => {
-      state.holeY = parseFloat($("holeY").value) || 0;
-      updatePreview();
-    });
-    document.querySelectorAll(".pos-btn").forEach(btn => {
-      btn.addEventListener("click", () => setPosition(btn.dataset.pos));
-    });
-    $("btnExport").addEventListener("click", download);
   </script>
 </body>
 </html>
