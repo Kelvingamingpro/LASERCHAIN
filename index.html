@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -366,36 +366,36 @@
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- KEY GATE (Satu-satunya elemen yang ada di HTML sebelum diverifikasi) -->
+  <!-- KEY GATE -->
   <div id="keyGate">
     <div class="gate-card">
       <h1>🔑 Key Required</h1>
       <p class="sub">
-        Masukkan key dari <strong>Work.ink</strong> untuk membuka Laser Cut Calculator.
+        Enter the key from <strong>Work.ink</strong> to unlock the Laser Cut Calculator.
       </p>
-      <input type="text" id="keyInput" placeholder="Paste key di sini..." autocomplete="off" spellcheck="false" />
+      <input type="text" id="keyInput" placeholder="Paste key here..." autocomplete="off" spellcheck="false" />
       <button class="btn" id="btnUnlock">Unlock</button>
       <div class="gate-status" id="gateStatus"></div>
       <p class="gate-help">
-        Dapatkan key dengan menyelesaikan link Work.ink-mu.<br>
+        Get a key by completing your Work.ink link.<br>
         API: <code style="font-size:0.7rem">work.ink/_api/v2/token/isValid/</code>
       </p>
     </div>
   </div>
 
   <div id="appContainer"></div>
-  <div class="toast" id="toast">SVG berhasil diunduh</div>
+  <div class="toast" id="toast">SVG successfully downloaded</div>
 
   <script>
     (function () {
-      // 1. KUNCI DOMAIN (Ganti atau tambahkan domain GitHub Pages kamu di sini)
+      // 1. DOMAIN LOCK
       const ALLOWED_HOSTS = [
         "localhost",
         "127.0.0.1",
-        window.location.hostname // Hapus baris ini dan ganti dengan misal: "username.github.io"
+        window.location.hostname
       ];
       if (!ALLOWED_HOSTS.includes(window.location.hostname)) {
-        document.body.innerHTML = "<h2 style='color:#fff;text-align:center;margin-top:20%'>Akses Domain Tidak Sah</h2>";
+        document.body.innerHTML = "<h2 style='color:#fff;text-align:center;margin-top:20%'>Unauthorized Domain Access</h2>";
         throw new Error("Domain lock triggered.");
       }
 
@@ -416,7 +416,7 @@
       const gateObserver = new MutationObserver(function () {
         const gate = document.getElementById("keyGate");
         if (!isUnlocked && (!gate || gate.style.display === "none")) {
-          document.body.innerHTML = "<h2 style='color:#ff5555;text-align:center;margin-top:20%'>Manipulasi Dideteksi</h2>";
+          document.body.innerHTML = "<h2 style='color:#ff5555;text-align:center;margin-top:20%'>Tampering Detected</h2>";
           window.location.reload();
         }
       });
@@ -456,65 +456,65 @@
             <div class="main">
               <aside class="panel">
                 <div>
-                  <div class="section-title">Ukuran Bahan</div>
+                  <div class="section-title">Material Dimensions</div>
                   <div class="row-2">
                     <div class="field">
-                      <label>Panjang <span class="unit">mm</span></label>
+                      <label>Width <span class="unit">mm</span></label>
                       <input type="number" id="width" value="60" min="5" max="500" step="0.1" />
                     </div>
                     <div class="field">
-                      <label>Lebar <span class="unit">mm</span></label>
+                      <label>Height <span class="unit">mm</span></label>
                       <input type="number" id="height" value="40" min="5" max="500" step="0.1" />
                     </div>
                   </div>
                 </div>
                 <div>
-                  <div class="section-title">Sudut</div>
+                  <div class="section-title">Corners</div>
                   <div class="field">
                     <label>Radius <span class="unit">mm</span></label>
                     <input type="number" id="radius" value="5" min="0" max="50" step="0.1" />
                   </div>
-                  <p class="hint">0 = tajam. Otomatis dibatasi agar tidak melebihi ukuran.</p>
+                  <p class="hint">0 = sharp. Automatically clamped to avoid exceeding dimensions.</p>
                 </div>
                 <div>
-                  <div class="section-title">Lubang Gantungan</div>
+                  <div class="section-title">Keychain Hole</div>
                   <div class="field">
                     <label>Diameter <span class="unit">mm</span></label>
                     <input type="number" id="holeDia" value="4" min="0" max="30" step="0.1" />
                   </div>
                   <div style="margin-top:10px">
-                    <div class="section-title" style="margin-bottom:6px">Posisi</div>
+                    <div class="section-title" style="margin-bottom:6px">Position</div>
                     <div class="pos-grid">
-                      <button type="button" class="pos-btn active" data-pos="top-center">Tengah Atas</button>
-                      <button type="button" class="pos-btn" data-pos="top-left">Kiri Atas</button>
-                      <button type="button" class="pos-btn" data-pos="top-right">Kanan Atas</button>
-                      <button type="button" class="pos-btn" data-pos="left">Kiri</button>
-                      <button type="button" class="pos-btn" data-pos="right">Kanan</button>
-                      <button type="button" class="pos-btn" data-pos="none">Tanpa Lubang</button>
-                      <button type="button" class="pos-btn free" data-pos="free">✦ Bebas / Drag</button>
+                      <button type="button" class="pos-btn active" data-pos="top-center">Top Center</button>
+                      <button type="button" class="pos-btn" data-pos="top-left">Top Left</button>
+                      <button type="button" class="pos-btn" data-pos="top-right">Top Right</button>
+                      <button type="button" class="pos-btn" data-pos="left">Left</button>
+                      <button type="button" class="pos-btn" data-pos="right">Right</button>
+                      <button type="button" class="pos-btn" data-pos="none">No Hole</button>
+                      <button type="button" class="pos-btn free" data-pos="free">✦ Custom / Drag</button>
                     </div>
                   </div>
                   <div class="coord-row" id="coordRow">
                     <div class="field">
-                      <label>X pusat <span class="unit">mm</span></label>
+                      <label>Center X <span class="unit">mm</span></label>
                       <input type="number" id="holeX" value="30" min="0" step="0.1" />
                     </div>
                     <div class="field">
-                      <label>Y pusat <span class="unit">mm</span></label>
+                      <label>Center Y <span class="unit">mm</span></label>
                       <input type="number" id="holeY" value="5" min="0" step="0.1" />
                     </div>
                   </div>
                   <div class="field" id="offsetField" style="margin-top:10px">
-                    <label>Jarak dari tepi <span class="unit">mm</span></label>
+                    <label>Edge Margin <span class="unit">mm</span></label>
                     <input type="number" id="holeOffset" value="3" min="0.5" max="40" step="0.1" />
                   </div>
-                  <p class="hint" id="posHint">Pilih posisi, atau aktifkan <strong>Bebas / Drag</strong> lalu geser lubang di preview.</p>
+                  <p class="hint" id="posHint">Select a preset position, or choose <strong>Custom / Drag</strong> to reposition directly on the preview.</p>
                 </div>
                 <div>
                   <div class="section-title">Export</div>
                   <p class="hint" style="margin:0">
-                    Stroke <strong style="color:#ff3b3b">#FF0000</strong> hairline · Unit mm<br>
-                    Langsung dipakai di LightBurn / RDWorks.
+                    Stroke <strong style="color:#ff3b3b">#FF0000</strong> hairline · mm units<br>
+                    Ready for LightBurn / RDWorks.
                   </p>
                 </div>
               </aside>
@@ -522,7 +522,7 @@
                 <div class="preview-toolbar">
                   <span>Preview</span>
                   <span class="dim" id="dimLabel">60 × 40 mm</span>
-                  <span class="drag-hint" id="dragHint">← geser lubang untuk pindah posisi</span>
+                  <span class="drag-hint" id="dragHint">← drag the hole to reposition</span>
                 </div>
                 <div class="canvas-area" id="canvasArea">
                   <div class="grid-overlay"></div>
@@ -531,7 +531,7 @@
               </section>
             </div>
             <footer>
-              <div class="footer-info">Akurat 100% · koordinat mm · siap mesin laser</div>
+              <div class="footer-info">100% accurate · mm coordinates · laser-ready</div>
               <button class="btn-export" id="btnExport">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -712,10 +712,10 @@
           $("offsetField").style.display = (isFree || isNone) ? "none" : "block";
           $("dragHint").classList.toggle("show", isFree);
           $("posHint").innerHTML = isFree
-            ? "Geser lubang di preview, atau ketik koordinat X/Y. Lubang selalu tetap di dalam bahan."
+            ? "Drag the hole directly in the preview, or enter custom X/Y coordinates. The hole stays clamped within bounds."
             : isNone
-              ? "Tidak ada lubang gantungan."
-              : "Pilih posisi, atau aktifkan <strong>Bebas / Drag</strong> lalu geser lubang di preview.";
+              ? "Keychain hole disabled."
+              : "Select a preset position, or choose <strong>Custom / Drag</strong> to reposition directly on the preview.";
 
           if (isFree) {
             const vals = getValues();
@@ -757,7 +757,7 @@
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
           const toast = $("toast");
-          toast.textContent = `SVG ${W}×${H} mm diunduh — siap laser`;
+          toast.textContent = `SVG ${W}×${H} mm downloaded — ready to cut`;
           toast.classList.add("show");
           setTimeout(() => toast.classList.remove("show"), 2000);
         }
@@ -798,7 +798,7 @@
         if (!token || token.length < 3) {
           if (status) {
             status.className = "gate-status error";
-            status.textContent = "Key terlalu pendek.";
+            status.textContent = "Key is too short.";
           }
           return;
         }
@@ -807,7 +807,7 @@
         if (btn) btn.disabled = true;
         if (status) {
           status.className = "gate-status loading";
-          status.textContent = "Memvalidasi key...";
+          status.textContent = "Validating key...";
         }
 
         try {
@@ -816,13 +816,13 @@
             try { localStorage.setItem(KEY_STORAGE, token.trim()); } catch (_) {}
             if (status) {
               status.className = "gate-status ok";
-              status.textContent = "Key valid ✓ Membuka aplikasi...";
+              status.textContent = "Key valid ✓ Launching app...";
             }
             setTimeout(injectApplication, 400);
           } else {
             if (status) {
               status.className = "gate-status error";
-              status.textContent = "Key tidak valid atau sudah kadaluarsa.";
+              status.textContent = "Key is invalid or has expired.";
             }
             if (fromStorage) {
               try { localStorage.removeItem(KEY_STORAGE); } catch (_) {}
@@ -831,7 +831,7 @@
         } catch (err) {
           if (status) {
             status.className = "gate-status error";
-            status.textContent = "Gagal menghubungi Work.ink (CORS / jaringan).";
+            status.textContent = "Failed to reach Work.ink (CORS / network issue).";
           }
         } finally {
           if (btn) btn.disabled = false;
